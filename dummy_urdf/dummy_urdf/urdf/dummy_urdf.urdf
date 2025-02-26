@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot name="dummy_urdf">
+  <!-- Define the active base and chain links -->
+  <link name="base_link"/>
+  <link name="link_1"/>
+  <link name="link_2"/>
+  <link name="link_3"/>
+  <link name="gripper"/>
+
+  <!-- Joint 1: Connects base_link to link_1 -->
+  <joint name="joint_1" type="revolute">
+    <!-- Translation from base_link to link_1 -->
+    <origin xyz="0 0 0.080875" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="link_1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="1"/>
+  </joint>
+
+  <!-- Joint 2: Connects link_1 to link_2 -->
+  <joint name="joint_2" type="revolute">
+    <!-- Translation from link_1 to link_2 -->
+    <origin xyz="0 0 0.0729" rpy="0 0 0"/>
+    <parent link="link_1"/>
+    <child link="link_2"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="1"/>
+  </joint>
+
+  <!-- Joint 3: Connects link_2 to gripper -->
+  <joint name="joint_3" type="revolute">
+    <!-- Translation from link_2 to gripper -->
+    <origin xyz="-0.1064 0 0.38559" rpy="0 0 0"/>
+    <parent link="link_2"/>
+    <child link="link_3"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="1"/>
+  </joint>
+
+    <!-- Joint 4: from link_3 to link_4 -->
+  <joint name="joint_4" type="revolute">
+    <origin xyz="0.18399 -0.003 0.1" rpy="0 0 0"/>
+    <parent link="link_3"/>
+    <child link="gripper"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-3.14159" upper="3.14159" effort="100" velocity="1"/>
+  </joint>
+</robot>
