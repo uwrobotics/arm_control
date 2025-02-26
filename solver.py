@@ -32,13 +32,18 @@ class iksolver:
     def update_plot(self):
         """
         Clear and update the plot with the current chain configuration.
+        Also overlay text showing the target position and joint angles.
         """
         self.ax.cla()  # Clear the axis.
         self.my_chain.plot(self.joint_angle, self.ax, target=self.goal)
-        # Set axis limits as needed.
-        self.ax.set_xlim(-0.1, 0.1)
-        self.ax.set_ylim(-0.1, 0.1)
+        # Set axis limits (you might need to adjust these based on your model)
+        self.ax.set_xlim(-0.5, 0.5)
+        self.ax.set_ylim(-0.5, 0.5)
         self.ax.set_zlim(0, 1.5)
+        # Overlay text information for clarity.
+        textstr = f"Target: {np.round(self.goal, 3)}\nJoint Angles: {np.round(self.joint_angle, 3)}"
+        self.ax.text2D(0.05, 0.95, textstr, transform=self.ax.transAxes, fontsize=10,
+                       verticalalignment='top', bbox=dict(boxstyle="round", facecolor="wheat", alpha=0.5))
         self.fig.canvas.draw_idle()
         self.fig.canvas.flush_events()
 
@@ -54,7 +59,7 @@ class iksolver:
         """
         LCM subscriber loop: listens for messages on channel "TARGET_POSITION".
         """
-        lc = lcm.LCM()
+        lc_inst = lcm.LCM()
 
         def handler(channel, data):
             msg = target_position.TargetPosition.decode(data)
@@ -63,10 +68,10 @@ class iksolver:
             self.compute(target)
             # Do NOT update the plot here. The main thread will handle that.
 
-        subscription = lc.subscribe("TARGET_POSITION", handler)
+        subscription = lc_inst.subscribe("TARGET_POSITION", handler)
         try:
             while True:
-                lc.handle()
+                lc_inst.handle()
         except KeyboardInterrupt:
             pass
 
@@ -75,14 +80,13 @@ if __name__ == '__main__':
     solve = iksolver()
     solve.start_subscriber()
     
-    # Optionally, perform an initial computation and update the plot.
-    solve.compute(np.array([1, 1, 1]))
+    # Perform an initial computation and update the plot.
+    solve.compute(np.array([0.05, 0.05, 0.1]))
     solve.update_plot()
 
     print("Starting main loop. Press Ctrl+C to exit.")
     try:
-        # The main loop, running in the main thread, checks for new updates
-        # and updates the plot accordingly.
+        # Main loop: if new data is available, update the plot.
         while True:
             if solve.new_update:
                 solve.update_plot()
